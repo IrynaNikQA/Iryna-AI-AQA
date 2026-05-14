@@ -1,0 +1,29 @@
+{
+  "name": "iryna-ai-aqa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:trace": "playwright test --trace on",
+    "trace:show": "playwright show-trace test-results/example-has-title-chromium/trace.zip",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IrynaNikQA/Iryna-AI-AQA.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/IrynaNikQA/Iryna-AI-AQA/issues"
+  },
+  "homepage": "https://github.com/IrynaNikQA/Iryna-AI-AQA#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "cypress": "^15.15.0"
+  }
+}
