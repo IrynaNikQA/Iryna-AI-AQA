@@ -111,7 +111,7 @@
 | **Steps** | 1. Fill **Program Name** `API Failure Test`.<br>2. Fill **Description** `Desc`.<br>3. Trigger **Create** while the create API fails. |
 | **Expected result** | User sees a clear error message; modal does not close **or** closes with explicit failure + recovery path per UX spec; list does **not** show **API Failure Test** unless server confirmed success. |
 | **Priority** | High |
-| **AC coverage** | Negative (correctness vs “modal closes”) |
+| **AC coverage** | Negative (correctness vs "modal closes") |
 
 ---
 
@@ -241,14 +241,14 @@ Additional cases (TC-003, TC-004, TC-006–TC-017) extend validation, auth, boun
 ## Ambiguities and gaps in the ACs
 
 1. **Description required?** AC only mandates validation for empty **Program Name**; optional vs required **Description** is unspecified (TC-003).  
-2. **“Modal closes” vs success** AC ties closing to success; it does not say what happens on server error — risk of false confidence if UI closes optimistically (TC-008).  
-3. **Whitespace-only name** AC does not say whether spaces count as “empty” for disabling **Create** (TC-006).  
+2. **"Modal closes" vs success** AC ties closing to success; it does not say what happens on server error — risk of false confidence if UI closes optimistically (TC-008).  
+3. **Whitespace-only name** AC does not say whether spaces count as "empty" for disabling **Create** (TC-006).  
 4. **Duplicate names** No rule for uniqueness or ID vs display name (TC-014).  
 5. **Max length** No limits for **Program Name** or **Description** (TC-011, TC-012).  
-6. **List behavior** “Shows” does not specify sort order, pagination, search, or partial match — where the new row appears after create (TC-002).  
+6. **List behavior** "Shows" does not specify sort order, pagination, search, or partial match — where the new row appears after create (TC-002).  
 7. **Accessibility / keyboard** No AC for focus trap, Enter to submit, or **Esc** to close — affects regressions for admin workflows.  
-8. **Permissions** “Admin” is stated for navigation; other roles and direct API access are not defined (TC-009).  
+8. **Permissions** "Admin" is stated for navigation; other roles and direct API access are not defined (TC-009).  
 9. **Field labels vs API** Assumes visible labels **Program Name** and **Description** match stored attributes; i18n or renamed labels not covered.  
-10. **Post-create edit/delete** Out of scope for “create” but affects how testers confirm the correct row (e.g. duplicate names).
+10. **Post-create edit/delete** Out of scope for "create" but affects how testers confirm the correct row (e.g. duplicate names).
 
 If you want this aligned to your actual app (exact modal title, URL, max lengths), point me at the repo screen or spec and I can map TC-011/TC-012 to concrete **N** values and UI controls.
