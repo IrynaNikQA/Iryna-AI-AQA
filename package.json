@@ -8,7 +8,8 @@
     "test:trace": "playwright test --trace on",
     "trace:show": "playwright show-trace test-results/example-has-title-chromium/trace.zip",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "cypress:e2e:todo": "cypress run --spec cypress/e2e/todomvc.cy.js"
   },
   "repository": {
     "type": "git",
