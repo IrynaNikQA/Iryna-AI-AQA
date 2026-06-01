@@ -1,5 +1,6 @@
 import { expect, test } from '../fixtures/didaxis.fixture';
-import { openNewProgramModal, submitCreateTracked, uniqueSuffix } from './didaxis.helpers';
+import { ProgramsPage } from '../pages/programs.page';
+import { submitCreateTracked, uniqueSuffix } from './didaxis.helpers';
 
 test.describe('DS-1 — Create new academic program', () => {
   test.describe.configure({ mode: 'serial', timeout: 60_000 });
@@ -7,23 +8,28 @@ test.describe('DS-1 — Create new academic program', () => {
   test('TC-001 — Program creation form shows Program Name, Description, and Create', async ({
     page,
   }) => {
-    await openNewProgramModal(page);
-    await expect(page.getByLabel('Program Name')).toBeVisible();
-    await expect(page.getByLabel('Description')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Create' })).toBeVisible();
+    const programs = new ProgramsPage(page);
+    await programs.openNewProgramModal();
+
+    const modal = programs.newProgramModal;
+    await expect(modal.programNameInput).toBeVisible();
+    await expect(modal.descriptionInput).toBeVisible();
+    await expect(modal.createButton).toBeVisible();
   });
 
   test('TC-002 — New program appears in list after successful create', async ({ page, trackProgram }) => {
     const programName = `Web Development ${uniqueSuffix()}`;
     const description = `Full-stack web development program ${uniqueSuffix()}`;
+    const programs = new ProgramsPage(page);
+    const modal = programs.newProgramModal;
 
-    await openNewProgramModal(page);
-    await page.getByLabel('Program Name').fill(programName);
-    await page.getByLabel('Description').fill(description);
+    await programs.openNewProgramModal();
+    await modal.fillProgramName(programName);
+    await modal.fillDescription(description);
     await submitCreateTracked(page, trackProgram);
 
-    await expect(page.getByLabel('Program Name')).toBeHidden({ timeout: 15_000 });
-    await expect(page.getByText(programName, { exact: true }).first()).toBeVisible();
+    await expect(modal.programNameInput).toBeHidden({ timeout: 15_000 });
+    await expect(programs.programText(programName).first()).toBeVisible();
   });
 
   test('TC-003 — Create with Program Name only when Description is empty', async ({
@@ -31,17 +37,18 @@ test.describe('DS-1 — Create new academic program', () => {
     trackProgram,
   }) => {
     const programName = `Data Science Fundamentals ${uniqueSuffix()}`;
+    const programs = new ProgramsPage(page);
+    const modal = programs.newProgramModal;
 
-    await openNewProgramModal(page);
-    await page.getByLabel('Program Name').fill(programName);
-    await page.getByLabel('Description').fill('');
+    await programs.openNewProgramModal();
+    await modal.fillProgramName(programName);
+    await modal.fillDescription('');
 
-    const createBtn = page.getByRole('button', { name: 'Create' });
-    await expect(createBtn).toBeEnabled();
+    await expect(modal.createButton).toBeEnabled();
     await submitCreateTracked(page, trackProgram);
 
-    await expect(page.getByRole('button', { name: 'Create' })).toBeHidden({ timeout: 15_000 });
-    await expect(page.getByText(programName)).toBeVisible();
+    await expect(modal.createButton).toBeHidden({ timeout: 15_000 });
+    await expect(programs.programText(programName).first()).toBeVisible();
   });
 
   test('TC-004 — Long description is stored and visible', async ({ page, trackProgram }) => {
@@ -56,73 +63,77 @@ test.describe('DS-1 — Create new academic program', () => {
       'We emphasize security, cost awareness, and sustainable engineering practices.';
     expect(longDescription.length).toBeGreaterThanOrEqual(450);
 
-    await openNewProgramModal(page);
-    await page.getByLabel('Program Name').fill(programName);
-    await page.getByLabel('Description').fill(longDescription);
+    const programs = new ProgramsPage(page);
+    const modal = programs.newProgramModal;
+
+    await programs.openNewProgramModal();
+    await modal.fillProgramName(programName);
+    await modal.fillDescription(longDescription);
     await submitCreateTracked(page, trackProgram);
 
-    await expect(page.getByRole('button', { name: 'Create' })).toBeHidden({ timeout: 15_000 });
-    await expect(page.getByText(programName)).toBeVisible();
-    await expect(page.getByText(longDescription.slice(0, 80)).first()).toBeVisible();
+    await expect(modal.createButton).toBeHidden({ timeout: 15_000 });
+    await expect(programs.programText(programName).first()).toBeVisible();
+    await expect(programs.textContaining(longDescription.slice(0, 80)).first()).toBeVisible();
   });
 
   test('TC-005 — Create stays disabled when Program Name is empty', async ({ page }) => {
-    await openNewProgramModal(page);
-    await page.getByLabel('Program Name').fill('');
-    await page.getByLabel('Description').fill(`Any text ${uniqueSuffix()}`);
+    const programs = new ProgramsPage(page);
+    const modal = programs.newProgramModal;
 
-    await expect(page.getByRole('button', { name: 'Create' })).toBeDisabled();
+    await programs.openNewProgramModal();
+    await modal.fillProgramName('');
+    await modal.fillDescription(`Any text ${uniqueSuffix()}`);
+
+    await expect(modal.createButton).toBeDisabled();
   });
 
   test('TC-006 — Whitespace-only Program Name does not submit a visible program', async ({
     page,
   }) => {
-    await openNewProgramModal(page);
-    await page.getByLabel('Program Name').fill('   ');
-    await page.getByLabel('Description').fill(`Test ${uniqueSuffix()}`);
+    const programs = new ProgramsPage(page);
+    const modal = programs.newProgramModal;
 
-    const createBtn = page.getByRole('button', { name: 'Create' });
-    if (await createBtn.isDisabled()) {
-      await expect(createBtn).toBeDisabled();
+    await programs.openNewProgramModal();
+    await modal.fillProgramName('   ');
+    await modal.fillDescription(`Test ${uniqueSuffix()}`);
+
+    if (await modal.createButton.isDisabled()) {
+      await expect(modal.createButton).toBeDisabled();
       return;
     }
 
-    await createBtn.click();
-    await expect(page.getByLabel('Program Name')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Create' })).toBeVisible();
+    await modal.submit();
+    await expect(modal.programNameInput).toBeVisible();
+    await expect(modal.createButton).toBeVisible();
   });
 
   test('TC-007 — Closing modal without save does not add program', async ({ page }) => {
     const ghostName = `Should Not Save ${uniqueSuffix()}`;
-    const programNameField = page.getByLabel('Program Name');
+    const programs = new ProgramsPage(page);
+    const modal = programs.newProgramModal;
 
-    await openNewProgramModal(page);
-    await programNameField.fill(ghostName);
+    await programs.openNewProgramModal();
+    await modal.fillProgramName(ghostName);
+    await modal.cancel();
 
-    const cancelBtn = page.getByRole('button', { name: 'Cancel' });
-    if (await cancelBtn.isVisible()) {
-      await cancelBtn.click();
-    } else {
-      await page.keyboard.press('Escape');
-    }
-
-    await expect(programNameField).toBeHidden({ timeout: 10_000 });
-    await page.goto('/programs');
-    await page.waitForLoadState('networkidle');
-    await expect(page.getByText(ghostName, { exact: true })).toHaveCount(0);
+    await expect(modal.programNameInput).toBeHidden({ timeout: 10_000 });
+    await programs.goto();
+    await expect(programs.programText(ghostName)).toHaveCount(0);
   });
 
   test('TC-010 — Single-character Program Name is accepted', async ({ page, trackProgram }) => {
     const code = 0x3042 + (Date.now() % 84);
     const programName = String.fromCodePoint(code);
+    const programs = new ProgramsPage(page);
+    const modal = programs.newProgramModal;
 
-    await openNewProgramModal(page);
-    await page.getByLabel('Program Name').fill(programName);
-    await page.getByLabel('Description').fill('Min name');
+    await programs.openNewProgramModal();
+    await modal.fillProgramName(programName);
+    await modal.fillDescription('Min name');
     await submitCreateTracked(page, trackProgram);
 
-    await expect(page.getByRole('button', { name: 'Create' })).toBeHidden({ timeout: 15_000 });
-    await expect(page.getByText(programName, { exact: true }).first()).toBeVisible();
+    await expect(modal.createButton).toBeHidden({ timeout: 15_000 });
+    await expect(programs.programText(programName).first()).toBeVisible();
   });
 
   test('TC-013 — Unicode and symbols in name and description persist', async ({
@@ -131,27 +142,31 @@ test.describe('DS-1 — Create new academic program', () => {
   }) => {
     const programName = `Inżynieria & Robotyka — 日本語 ${uniqueSuffix()}`;
     const description = `Symbols: < > " ' & © ™ ${uniqueSuffix()}`;
+    const programs = new ProgramsPage(page);
+    const modal = programs.newProgramModal;
 
-    await openNewProgramModal(page);
-    await page.getByLabel('Program Name').fill(programName);
-    await page.getByLabel('Description').fill(description);
+    await programs.openNewProgramModal();
+    await modal.fillProgramName(programName);
+    await modal.fillDescription(description);
     await submitCreateTracked(page, trackProgram);
 
-    await expect(page.getByRole('button', { name: 'Create' })).toBeHidden({ timeout: 15_000 });
-    await expect(page.getByText(programName)).toBeVisible();
+    await expect(modal.createButton).toBeHidden({ timeout: 15_000 });
+    await expect(programs.programText(programName).first()).toBeVisible();
   });
 
   test('TC-015 — Multiline description is accepted', async ({ page, trackProgram }) => {
     const programName = `Multiline Desc Program ${uniqueSuffix()}`;
     const description = 'Line1\nLine2\nLine3';
+    const programs = new ProgramsPage(page);
+    const modal = programs.newProgramModal;
 
-    await openNewProgramModal(page);
-    await page.getByLabel('Program Name').fill(programName);
-    await page.getByLabel('Description').fill(description);
+    await programs.openNewProgramModal();
+    await modal.fillProgramName(programName);
+    await modal.fillDescription(description);
     await submitCreateTracked(page, trackProgram);
 
-    await expect(page.getByRole('button', { name: 'Create' })).toBeHidden({ timeout: 15_000 });
-    await expect(page.getByText(programName)).toBeVisible();
+    await expect(modal.createButton).toBeHidden({ timeout: 15_000 });
+    await expect(programs.programText(programName).first()).toBeVisible();
   });
 
   test('TC-016 — Double-click Create creates a single program row', async () => {
@@ -175,17 +190,19 @@ test.describe('DS-1 — Create new academic program', () => {
       void d.dismiss();
     });
 
-    await openNewProgramModal(page);
-    await page.getByLabel('Program Name').fill(programName);
-    await page.getByLabel('Description').fill(xssPayload);
+    const programs = new ProgramsPage(page);
+    const modal = programs.newProgramModal;
+
+    await programs.openNewProgramModal();
+    await modal.fillProgramName(programName);
+    await modal.fillDescription(xssPayload);
     await submitCreateTracked(page, trackProgram);
 
-    await expect(page.getByRole('button', { name: 'Create' })).toBeHidden({ timeout: 15_000 });
-    await expect(page.getByText(programName)).toBeVisible();
+    await expect(modal.createButton).toBeHidden({ timeout: 15_000 });
+    await expect(programs.programText(programName).first()).toBeVisible();
 
-    await page.goto('/programs');
-    await page.waitForLoadState('networkidle');
+    await programs.goto();
     expect(dialogSeen).toBe(false);
-    await expect(page.getByText(xssPayload).first()).toBeVisible();
+    await expect(programs.textContaining(xssPayload).first()).toBeVisible();
   });
 });
