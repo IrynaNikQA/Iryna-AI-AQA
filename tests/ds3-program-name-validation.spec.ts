@@ -1,21 +1,12 @@
-import { expect, test } from '../fixtures/cleanup.fixture';
+import { expect, test } from '../fixtures/didaxis.fixture';
 import {
   createProgramTracked,
-  loginAsAdmin,
   openNewProgramModal,
   uniqueSuffix,
 } from './didaxis.helpers';
 
 test.describe('DS-3 — Program name validation and duplicate prevention', () => {
   test.describe.configure({ mode: 'serial', timeout: 60_000 });
-
-  test.beforeEach(async ({ page }) => {
-    test.skip(
-      !process.env.DIDAXIS_EMAIL || !process.env.DIDAXIS_PASSWORD,
-      'Set DIDAXIS_EMAIL and DIDAXIS_PASSWORD in .env',
-    );
-    await loginAsAdmin(page);
-  });
 
   test('TC-001 — Program name with ampersand, hyphen, and accents is accepted', async ({
     page,

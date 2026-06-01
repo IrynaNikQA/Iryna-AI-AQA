@@ -1,16 +1,8 @@
-import { expect, test } from '../fixtures/cleanup.fixture';
-import { loginAsAdmin, openNewProgramModal, submitCreateTracked, uniqueSuffix } from './didaxis.helpers';
+import { expect, test } from '../fixtures/didaxis.fixture';
+import { openNewProgramModal, submitCreateTracked, uniqueSuffix } from './didaxis.helpers';
 
 test.describe('DS-1 — Create new academic program', () => {
   test.describe.configure({ mode: 'serial', timeout: 60_000 });
-
-  test.beforeEach(async ({ page }) => {
-    test.skip(
-      !process.env.DIDAXIS_EMAIL || !process.env.DIDAXIS_PASSWORD,
-      'Set DIDAXIS_EMAIL and DIDAXIS_PASSWORD in .env',
-    );
-    await loginAsAdmin(page);
-  });
 
   test('TC-001 — Program creation form shows Program Name, Description, and Create', async ({
     page,

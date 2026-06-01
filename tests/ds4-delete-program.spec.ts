@@ -1,22 +1,13 @@
-import { expect, test } from '../fixtures/cleanup.fixture';
+import { expect, test } from '../fixtures/didaxis.fixture';
 import {
   clickDeleteIconForProgram,
   createProgramTracked,
-  loginAsAdmin,
   programRow,
   uniqueSuffix,
 } from './didaxis.helpers';
 
 test.describe('DS-4 — Delete program with confirmation', () => {
   test.describe.configure({ mode: 'serial', timeout: 60_000 });
-
-  test.beforeEach(async ({ page }) => {
-    test.skip(
-      !process.env.DIDAXIS_EMAIL || !process.env.DIDAXIS_PASSWORD,
-      'Set DIDAXIS_EMAIL and DIDAXIS_PASSWORD in .env',
-    );
-    await loginAsAdmin(page);
-  });
 
   test('TC-001 — Confirming delete removes program from the list', async ({ page, trackProgram }) => {
     const name = `Test Program ${uniqueSuffix()}`;

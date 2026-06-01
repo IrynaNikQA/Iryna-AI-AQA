@@ -1,8 +1,7 @@
-import { expect, test } from '../fixtures/cleanup.fixture';
+import { expect, test } from '../fixtures/didaxis.fixture';
 import {
   createProgramTracked,
   descriptionInput,
-  loginAsAdmin,
   openEditForProgram,
   programNameInput,
   uniqueSuffix,
@@ -10,14 +9,6 @@ import {
 
 test.describe('DS-2 — Edit existing program details', () => {
   test.describe.configure({ mode: 'serial', timeout: 60_000 });
-
-  test.beforeEach(async ({ page }) => {
-    test.skip(
-      !process.env.DIDAXIS_EMAIL || !process.env.DIDAXIS_PASSWORD,
-      'Set DIDAXIS_EMAIL and DIDAXIS_PASSWORD in .env',
-    );
-    await loginAsAdmin(page);
-  });
 
   test('TC-001 — Edit form opens with current program name and description', async ({
     page,
