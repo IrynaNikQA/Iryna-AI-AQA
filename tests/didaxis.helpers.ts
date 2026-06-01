@@ -1,4 +1,56 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import { expect, type Locator, type Page, type Response } from '@playwright/test';
+
+export function extractProgramId(body: unknown): string | undefined {
+  if (!body || typeof body !== 'object') {
+    return undefined;
+  }
+
+  const record = body as Record<string, unknown>;
+  if (typeof record.id === 'string') {
+    return record.id;
+  }
+
+  const data = record.data;
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    const nestedId = (data as Record<string, unknown>).id;
+    if (typeof nestedId === 'string') {
+      return nestedId;
+    }
+  }
+
+  if (Array.isArray(data) && data[0] && typeof data[0] === 'object') {
+    const firstId = (data[0] as Record<string, unknown>).id;
+    if (typeof firstId === 'string') {
+      return firstId;
+    }
+  }
+
+  return undefined;
+}
+
+export function waitForProgramCreateResponse(page: Page) {
+  return page.waitForResponse(
+    (res) => res.url().includes('/api/programs') && res.request().method() === 'POST',
+    { timeout: 30_000 },
+  );
+}
+
+export async function programIdFromCreateResponse(response: Response): Promise<string | undefined> {
+  if (!response.ok()) {
+    return undefined;
+  }
+  try {
+    return extractProgramId(await response.json());
+  } catch {
+    return undefined;
+  }
+}
+
+export async function clickCreateAndGetProgramId(page: Page): Promise<string | undefined> {
+  const responsePromise = waitForProgramCreateResponse(page);
+  await page.getByRole('button', { name: 'Create' }).click();
+  return programIdFromCreateResponse(await responsePromise);
+}
 
 export function uniqueSuffix(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -46,12 +98,42 @@ export async function openNewProgramModal(page: Page): Promise<void> {
   await expect(page.getByLabel('Program Name')).toBeVisible();
 }
 
-export async function createProgram(page: Page, programName: string, description: string): Promise<void> {
+export async function createProgram(
+  page: Page,
+  programName: string,
+  description: string,
+): Promise<string | undefined> {
   await openNewProgramModal(page);
   await page.getByLabel('Program Name').fill(programName);
   await page.getByLabel('Description').fill(description);
-  await page.getByRole('button', { name: 'Create' }).click();
+  const programId = await clickCreateAndGetProgramId(page);
   await expect(page.getByLabel('Program Name')).toBeHidden({ timeout: 15_000 });
+  return programId;
+}
+
+/** Creates a program and registers its UUID for API teardown after the test. */
+export async function createProgramTracked(
+  page: Page,
+  trackProgram: (programId: string) => void,
+  programName: string,
+  description: string,
+): Promise<void> {
+  const programId = await createProgram(page, programName, description);
+  if (programId) {
+    trackProgram(programId);
+  }
+}
+
+/** Clicks Create, captures UUID from POST /api/programs, and registers it for teardown. */
+export async function submitCreateTracked(
+  page: Page,
+  trackProgram: (programId: string) => void,
+): Promise<string | undefined> {
+  const programId = await clickCreateAndGetProgramId(page);
+  if (programId) {
+    trackProgram(programId);
+  }
+  return programId;
 }
 
 export async function openEditForProgram(page: Page, programName: string): Promise<void> {

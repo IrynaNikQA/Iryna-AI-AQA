@@ -1,5 +1,5 @@
-import { expect, test } from '@playwright/test';
-import { loginAsAdmin, openNewProgramModal, uniqueSuffix } from './didaxis.helpers';
+import { expect, test } from '../fixtures/cleanup.fixture';
+import { loginAsAdmin, openNewProgramModal, submitCreateTracked, uniqueSuffix } from './didaxis.helpers';
 
 test.describe('DS-1 — Create new academic program', () => {
   test.describe.configure({ mode: 'serial', timeout: 60_000 });
@@ -21,20 +21,23 @@ test.describe('DS-1 — Create new academic program', () => {
     await expect(page.getByRole('button', { name: 'Create' })).toBeVisible();
   });
 
-  test('TC-002 — New program appears in list after successful create', async ({ page }) => {
+  test('TC-002 — New program appears in list after successful create', async ({ page, trackProgram }) => {
     const programName = `Web Development ${uniqueSuffix()}`;
     const description = `Full-stack web development program ${uniqueSuffix()}`;
 
     await openNewProgramModal(page);
     await page.getByLabel('Program Name').fill(programName);
     await page.getByLabel('Description').fill(description);
-    await page.getByRole('button', { name: 'Create' }).click();
+    await submitCreateTracked(page, trackProgram);
 
     await expect(page.getByLabel('Program Name')).toBeHidden({ timeout: 15_000 });
     await expect(page.getByText(programName, { exact: true }).first()).toBeVisible();
   });
 
-  test('TC-003 — Create with Program Name only when Description is empty', async ({ page }) => {
+  test('TC-003 — Create with Program Name only when Description is empty', async ({
+    page,
+    trackProgram,
+  }) => {
     const programName = `Data Science Fundamentals ${uniqueSuffix()}`;
 
     await openNewProgramModal(page);
@@ -43,13 +46,13 @@ test.describe('DS-1 — Create new academic program', () => {
 
     const createBtn = page.getByRole('button', { name: 'Create' });
     await expect(createBtn).toBeEnabled();
-    await createBtn.click();
+    await submitCreateTracked(page, trackProgram);
 
     await expect(page.getByRole('button', { name: 'Create' })).toBeHidden({ timeout: 15_000 });
     await expect(page.getByText(programName)).toBeVisible();
   });
 
-  test('TC-004 — Long description is stored and visible', async ({ page }) => {
+  test('TC-004 — Long description is stored and visible', async ({ page, trackProgram }) => {
     const programName = `Cloud Engineering ${uniqueSuffix()}`;
     const longDescription =
       'This paragraph repeats coherent sentences to reach roughly five hundred characters. ' +
@@ -64,7 +67,7 @@ test.describe('DS-1 — Create new academic program', () => {
     await openNewProgramModal(page);
     await page.getByLabel('Program Name').fill(programName);
     await page.getByLabel('Description').fill(longDescription);
-    await page.getByRole('button', { name: 'Create' }).click();
+    await submitCreateTracked(page, trackProgram);
 
     await expect(page.getByRole('button', { name: 'Create' })).toBeHidden({ timeout: 15_000 });
     await expect(page.getByText(programName)).toBeVisible();
@@ -117,40 +120,43 @@ test.describe('DS-1 — Create new academic program', () => {
     await expect(page.getByText(ghostName, { exact: true })).toHaveCount(0);
   });
 
-  test('TC-010 — Single-character Program Name is accepted', async ({ page }) => {
+  test('TC-010 — Single-character Program Name is accepted', async ({ page, trackProgram }) => {
     const code = 0x3042 + (Date.now() % 84);
     const programName = String.fromCodePoint(code);
 
     await openNewProgramModal(page);
     await page.getByLabel('Program Name').fill(programName);
     await page.getByLabel('Description').fill('Min name');
-    await page.getByRole('button', { name: 'Create' }).click();
+    await submitCreateTracked(page, trackProgram);
 
     await expect(page.getByRole('button', { name: 'Create' })).toBeHidden({ timeout: 15_000 });
     await expect(page.getByText(programName, { exact: true }).first()).toBeVisible();
   });
 
-  test('TC-013 — Unicode and symbols in name and description persist', async ({ page }) => {
+  test('TC-013 — Unicode and symbols in name and description persist', async ({
+    page,
+    trackProgram,
+  }) => {
     const programName = `Inżynieria & Robotyka — 日本語 ${uniqueSuffix()}`;
     const description = `Symbols: < > " ' & © ™ ${uniqueSuffix()}`;
 
     await openNewProgramModal(page);
     await page.getByLabel('Program Name').fill(programName);
     await page.getByLabel('Description').fill(description);
-    await page.getByRole('button', { name: 'Create' }).click();
+    await submitCreateTracked(page, trackProgram);
 
     await expect(page.getByRole('button', { name: 'Create' })).toBeHidden({ timeout: 15_000 });
     await expect(page.getByText(programName)).toBeVisible();
   });
 
-  test('TC-015 — Multiline description is accepted', async ({ page }) => {
+  test('TC-015 — Multiline description is accepted', async ({ page, trackProgram }) => {
     const programName = `Multiline Desc Program ${uniqueSuffix()}`;
     const description = 'Line1\nLine2\nLine3';
 
     await openNewProgramModal(page);
     await page.getByLabel('Program Name').fill(programName);
     await page.getByLabel('Description').fill(description);
-    await page.getByRole('button', { name: 'Create' }).click();
+    await submitCreateTracked(page, trackProgram);
 
     await expect(page.getByRole('button', { name: 'Create' })).toBeHidden({ timeout: 15_000 });
     await expect(page.getByText(programName)).toBeVisible();
@@ -165,7 +171,10 @@ test.describe('DS-1 — Create new academic program', () => {
     test.skip(true, 'Double-click creates duplicate programs in current build');
   });
 
-  test('TC-017 — Script-like description does not execute; text is stored', async ({ page }) => {
+  test('TC-017 — Script-like description does not execute; text is stored', async ({
+    page,
+    trackProgram,
+  }) => {
     const programName = `Security Program ${uniqueSuffix()}`;
     const xssPayload = '<img src=x onerror=alert(1)>';
     let dialogSeen = false;
@@ -177,7 +186,7 @@ test.describe('DS-1 — Create new academic program', () => {
     await openNewProgramModal(page);
     await page.getByLabel('Program Name').fill(programName);
     await page.getByLabel('Description').fill(xssPayload);
-    await page.getByRole('button', { name: 'Create' }).click();
+    await submitCreateTracked(page, trackProgram);
 
     await expect(page.getByRole('button', { name: 'Create' })).toBeHidden({ timeout: 15_000 });
     await expect(page.getByText(programName)).toBeVisible();

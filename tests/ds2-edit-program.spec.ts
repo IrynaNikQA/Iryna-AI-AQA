@@ -1,6 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures/cleanup.fixture';
 import {
-  createProgram,
+  createProgramTracked,
   descriptionInput,
   loginAsAdmin,
   openEditForProgram,
@@ -19,21 +19,24 @@ test.describe('DS-2 — Edit existing program details', () => {
     await loginAsAdmin(page);
   });
 
-  test('TC-001 — Edit form opens with current program name and description', async ({ page }) => {
+  test('TC-001 — Edit form opens with current program name and description', async ({
+    page,
+    trackProgram,
+  }) => {
     const name = `Web Development ${uniqueSuffix()}`;
     const desc = `Full-stack web development program ${uniqueSuffix()}`;
-    await createProgram(page, name, desc);
+    await createProgramTracked(page, trackProgram, name, desc);
 
     await openEditForProgram(page, name);
     await expect(programNameInput(page)).toHaveValue(name);
     await expect(descriptionInput(page)).toHaveValue(desc);
   });
 
-  test('TC-002 — Renaming program updates list after Save', async ({ page }) => {
+  test('TC-002 — Renaming program updates list after Save', async ({ page, trackProgram }) => {
     const name = `Web Development ${uniqueSuffix()}`;
     const desc = `Original desc ${uniqueSuffix()}`;
     const updated = `${name} - Updated`;
-    await createProgram(page, name, desc);
+    await createProgramTracked(page, trackProgram, name, desc);
 
     await openEditForProgram(page, name);
     await programNameInput(page).fill(updated);
@@ -44,11 +47,14 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(page.getByText(desc, { exact: false }).first()).toBeVisible();
   });
 
-  test('TC-003 — Description-only edit leaves program name unchanged', async ({ page }) => {
+  test('TC-003 — Description-only edit leaves program name unchanged', async ({
+    page,
+    trackProgram,
+  }) => {
     const name = `Data Science ${uniqueSuffix()}`;
     const originalDesc = `Original description ${uniqueSuffix()}`;
     const newDesc = `Updated cohort focus: ML and statistics ${uniqueSuffix()}`;
-    await createProgram(page, name, originalDesc);
+    await createProgramTracked(page, trackProgram, name, originalDesc);
 
     await openEditForProgram(page, name);
     await expect(programNameInput(page)).toHaveValue(name);
@@ -60,10 +66,10 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(page.getByText(newDesc, { exact: false }).first()).toBeVisible();
   });
 
-  test('TC-004 — Save with no edits keeps program unchanged', async ({ page }) => {
+  test('TC-004 — Save with no edits keeps program unchanged', async ({ page, trackProgram }) => {
     const name = `Stable Program ${uniqueSuffix()}`;
     const desc = `Stable description ${uniqueSuffix()}`;
-    await createProgram(page, name, desc);
+    await createProgramTracked(page, trackProgram, name, desc);
 
     await openEditForProgram(page, name);
     await page.getByRole('button', { name: 'Save' }).click();
@@ -72,9 +78,9 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(page.getByText(name, { exact: true }).first()).toBeVisible();
   });
 
-  test('TC-006 — Empty program name blocks save', async ({ page }) => {
+  test('TC-006 — Empty program name blocks save', async ({ page, trackProgram }) => {
     const name = `Named Program ${uniqueSuffix()}`;
-    await createProgram(page, name, `Desc ${uniqueSuffix()}`);
+    await createProgramTracked(page, trackProgram, name, `Desc ${uniqueSuffix()}`);
 
     await openEditForProgram(page, name);
     await programNameInput(page).fill('');
@@ -90,9 +96,12 @@ test.describe('DS-2 — Edit existing program details', () => {
     }
   });
 
-  test('TC-007 — Cancel dismisses edit without persisting changes', async ({ page }) => {
+  test('TC-007 — Cancel dismisses edit without persisting changes', async ({
+    page,
+    trackProgram,
+  }) => {
     const name = `Cancel Target ${uniqueSuffix()}`;
-    await createProgram(page, name, `Desc ${uniqueSuffix()}`);
+    await createProgramTracked(page, trackProgram, name, `Desc ${uniqueSuffix()}`);
 
     await openEditForProgram(page, name);
     await programNameInput(page).fill(`Should Not Persist ${uniqueSuffix()}`);
@@ -111,9 +120,10 @@ test.describe('DS-2 — Edit existing program details', () => {
 
   test('TC-014 — Unicode and special characters in name and description persist after edit', async ({
     page,
+    trackProgram,
   }) => {
     const name = `Edit Unicode Base ${uniqueSuffix()}`;
-    await createProgram(page, name, `Start ${uniqueSuffix()}`);
+    await createProgramTracked(page, trackProgram, name, `Start ${uniqueSuffix()}`);
 
     const newName = `Program — 日本語 & QA ${uniqueSuffix()}`;
     const newDesc = `Symbols: < > " ' & © ${uniqueSuffix()}`;
@@ -127,9 +137,12 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(page.getByText(newName, { exact: true }).first()).toBeVisible();
   });
 
-  test('TC-018 — Script-like description after edit does not trigger dialog', async ({ page }) => {
+  test('TC-018 — Script-like description after edit does not trigger dialog', async ({
+    page,
+    trackProgram,
+  }) => {
     const name = `XSS Edit Base ${uniqueSuffix()}`;
-    await createProgram(page, name, `Safe ${uniqueSuffix()}`);
+    await createProgramTracked(page, trackProgram, name, `Safe ${uniqueSuffix()}`);
     const xss = '<img src=x onerror=alert(1)>';
     let dialogSeen = false;
     page.on('dialog', (d) => {
