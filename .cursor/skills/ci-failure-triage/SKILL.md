@@ -111,7 +111,7 @@ Post via GitHub MCP (`add_issue_comment` on PR) or `gh pr comment`:
 
 ## Jira path
 
-For **app bug**, read and follow `.agent/skills/jira-bug-reporter/SKILL.md`:
+For **app bug**, read and follow `.cursor/skills/jira-bug-reporter/SKILL.md`:
 check duplicates in project DS, create ticket with steps/evidence, link story
 (e.g. DS-3).
 
