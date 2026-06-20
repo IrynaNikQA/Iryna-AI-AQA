@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/IrynaNikQA/Iryna-AI-AQA#readme",
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
     "@playwright/test": "^1.60.0",
     "cypress": "^15.15.0",
     "dotenv": "^17.4.2"
