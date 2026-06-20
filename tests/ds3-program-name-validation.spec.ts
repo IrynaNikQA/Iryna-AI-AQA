@@ -256,9 +256,13 @@ test.describe('DS-3 — Program name validation and duplicate prevention', () =>
     await programs.openNewProgramModal();
     await modal.fillProgramName(name);
     await modal.fillDescription(`Desc ${uniqueSuffix()}`);
-    await modal.createButton.dblclick();
-    await page.waitForTimeout(2_000);
 
+    const firstCreate = waitForProgramCreateResponse(page);
+    await modal.createButton.dblclick();
+    await firstCreate;
+    await waitForProgramCreateResponse(page).catch(() => null);
+
+    await expect(modal.dialog).toBeHidden();
     await expect(programs.programRow(name)).toHaveCount(1);
   });
 });
