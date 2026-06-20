@@ -9,6 +9,9 @@ export class ProgramsPage {
   readonly newProgramButton;
   readonly createProgramEmptyStateButton;
   readonly programColumnHeader;
+  readonly semesterEmptyStateHint;
+  readonly semestersSchedulingLabel;
+  readonly addSemesterButton;
   readonly navigation: AppNavigation;
   readonly newProgramModal: NewProgramModal;
   readonly editProgramModal: EditProgramModal;
@@ -19,6 +22,9 @@ export class ProgramsPage {
     this.newProgramButton = page.getByRole('button', { name: '+ New Program' });
     this.createProgramEmptyStateButton = page.getByRole('button', { name: 'Create Program' });
     this.programColumnHeader = page.getByRole('columnheader', { name: 'Program' });
+    this.semesterEmptyStateHint = page.getByText('Select a program to manage semesters');
+    this.semestersSchedulingLabel = page.getByText('Semesters & scheduling config');
+    this.addSemesterButton = page.getByRole('button', { name: '+ Semester' });
     this.navigation = new AppNavigation(page);
     this.newProgramModal = new NewProgramModal(page);
     this.editProgramModal = new EditProgramModal(page);
@@ -81,5 +87,13 @@ export class ProgramsPage {
 
   async openDeleteFor(programName: string) {
     await this.deleteButtonFor(programName).click();
+  }
+
+  semesterPanelTitle(programName: string): Locator {
+    return this.page.getByRole('heading', { level: 4, name: programName });
+  }
+
+  async selectProgram(programName: string) {
+    await this.programText(programName).first().click();
   }
 }
