@@ -2,6 +2,7 @@ name: Playwright Tests
 
 on:
   push:
+  workflow_dispatch:
 
 concurrency:
   group: playwright-${{ github.ref }}
@@ -38,7 +39,7 @@ jobs:
         run: npx playwright install chromium --with-deps
 
       - name: Run Playwright tests
-        run: npm test
+        run: npx playwright test --reporter=github --reporter=html
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
