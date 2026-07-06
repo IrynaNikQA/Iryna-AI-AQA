@@ -19,7 +19,7 @@ export class ProgramsPage {
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { name: 'Programs', level: 2 });
     this.subtitle = page.getByText('Manage academic programs and semesters');
-    this.newProgramButton = page.getByRole('button', { name: '+ New Program111' });
+    this.newProgramButton = page.getByRole('button', { name: '+ New Program' });
     this.createProgramEmptyStateButton = page.getByRole('button', { name: 'Create Program' });
     this.programColumnHeader = page.getByRole('columnheader', { name: 'Program' });
     this.semesterEmptyStateHint = page.getByText('Select a program to manage semesters');
