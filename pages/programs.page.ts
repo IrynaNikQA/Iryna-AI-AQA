@@ -17,7 +17,7 @@ export class ProgramsPage {
   readonly editProgramModal: EditProgramModal;
 
   constructor(private readonly page: Page) {
-    this.heading = page.getByRole('heading', { name: 'Programs', level: 2 });
+    this.heading = page.getByRole('heading', { name: 'Programs111', level: 2 });
     this.subtitle = page.getByText('Manage academic programs and semesters');
     this.newProgramButton = page.getByRole('button', { name: '+ New Program' });
     this.createProgramEmptyStateButton = page.getByRole('button', { name: 'Create Program' });
