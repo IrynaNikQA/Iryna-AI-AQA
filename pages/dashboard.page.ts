@@ -7,7 +7,7 @@ export class DashboardPage {
   readonly navigation: AppNavigation;
 
   constructor(private readonly page: Page) {
-    this.heading = page.getByRole('heading', { name: 'Dashboard', level: 2 });
+    this.heading = page.getByRole('heading', { name: 'Dashboard111', level: 2 });
     this.welcomeText = page.getByText('Welcome to Didaxis Studio');
     this.navigation = new AppNavigation(page);
   }
