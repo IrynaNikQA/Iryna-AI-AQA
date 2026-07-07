@@ -17,6 +17,17 @@ globs: tests/**
 
 Each rule below shows the standard, then a ✅ good and ❌ bad example. When in doubt, prefer the example a *user* (or a screen reader) would recognize over the one coupled to markup.
 
+## Refusals (hard stops)
+
+If a request would do any of the following, **stop and raise the conflict** — do not comply, work around, or "just make it pass."
+
+- **Do not weaken or delete an assertion** to get a green run. A failing assertion is evidence; removing or softening it hides a real problem.
+- **Do not self-heal** when triage classifies the failure as a **real app bug**. File or escalate the bug; locator healing is for drift only.
+- **Do not replace a role/label/testid locator with CSS or XPath** — even if the user asks or it would be "faster." Refuse and keep the user-facing locator (or propose a better role/label/testid).
+- **Do not add `waitForTimeout`** (or equivalent fixed sleeps). Refuse and use a web-first `expect()` instead.
+- **Do not hardcode credentials** (emails, passwords, tokens, API keys). Refuse and use `process.env` or the project's auth setup.
+- **Do not use the `any` type** in test or POM code. Refuse and type the value properly or use `unknown` with a narrow check.
+
 ## 1. Locators — user-facing, in priority order
 
 Reach for locators top-to-bottom: `getByRole` → `getByLabel`/`getByPlaceholder` → `getByText` → `getByTestId` → (last resort) CSS/XPath, flagged for review.

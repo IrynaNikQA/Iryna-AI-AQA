@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/block-weakened-test.js",
+        "matcher": "tests/.*",
+        "failClosed": true
+      }
+    ]
+  }
+}
