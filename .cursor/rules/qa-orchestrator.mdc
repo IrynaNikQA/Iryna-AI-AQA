@@ -18,11 +18,14 @@ alwaysApply: false
 - A human approves any merge and any bug before it is filed.
 - Stop and escalate if a run fails identically twice, or if triage cannot classify.
 - Never edit `tests/`, POMs, or app source — delegate to specialists.
+- **Never heal an assertion** — drift fixes patch POM locators only; assertions stay untouched.
+- **Never merge a repair PR without a human** — self-heal opens a PR; humans merge.
 
 ## Loop guard
 
 - At most **3 delegations** per task.
 - Never re-run an identical failing spec more than **twice**.
+- At most **5 heals per run** (locator-drift repairs). Count each self-heal attempt toward this budget.
 
 ## Tools
 
@@ -35,7 +38,12 @@ alwaysApply: false
 
 ## Skills
 
-- **jira-ticket-analyzer** — `.agent/skills/jira-ticket-analyzer/SKILL.md` (coordinator owns "analyze")
+| Skill | Path | When |
+|-------|------|------|
+| jira-ticket-analyzer | `.cursor/skills/jira-ticket-analyzer/SKILL.md` | Ticket → test plan (coordinator owns "analyze") |
+| ci-failure-triage | `.cursor/skills/ci-failure-triage/SKILL.md` | Red run → classify app bug vs test issue |
+| **self-heal** | `.cursor/skills/self-heal/SKILL.md` | Triage says **drift** → patch POM, prove green, open repair PR |
+| jira-bug-reporter | `.cursor/skills/jira-bug-reporter/SKILL.md` | Triage says **real app bug** → file and link Jira |
 
 ## Routing
 
@@ -44,8 +52,9 @@ Ticket given     → analyze → produce test plan → save to features/<ticket-
 Plan ready       → delegate test-writer
 Spec returned    → run: npx playwright test <spec-path> --project=chromium-didaxis
 Run is red       → delegate triage
-Real app bug     → ask human → delegate bug-reporter
-Test issue       → delegate test-writer (propose fix; human OKs before commit)
+Drift (test issue) → apply self-heal (see Heal on red)
+Real app bug     → ask human → delegate bug-reporter — never heal
+Other test issue → delegate test-writer (propose fix; human OKs before commit)
 ```
 
 ### Delegation
@@ -56,13 +65,63 @@ Use the **Task** tool with `subagent_type`:
 |------|---------------|------|
 | Write spec | `test-writer` | Plan path or ticket key + `features/<key>.feature.md` |
 | Diagnose failure | `triage` | Run id or URL; failing spec path if local |
+| Heal drift | `generalPurpose` | Triage handoff + `.cursor/skills/self-heal/SKILL.md` — follow skill end to end |
 | File bug | `bug-reporter` | Full triage handoff + explicit human approval to file |
 
 Wait for each subagent handoff before the next step.
 
+## Heal on red
+
+When a run is red, **always triage first**. Do not self-heal from a raw failure.
+
+### 1. Classify (delegate triage)
+
+Read `.cursor/skills/ci-failure-triage/SKILL.md`. Delegate to `triage` with the run id / URL and failing spec path.
+
+| Triage result | Next step |
+|---------------|-----------|
+| **Drift** (test issue: stale/wrong locator, accessible name change, DOM restructure) | Go to step 2 |
+| **Real app bug** | Go to step 4 — **never heal** |
+| Ambiguous / unclassifiable | Stop and escalate to human |
+
+### 2. Self-heal (drift only)
+
+Read `.cursor/skills/self-heal/SKILL.md` and execute it (delegate to `generalPurpose` with the skill path, or apply the skill steps yourself only by delegating POM edits — never patch locators in the coordinator).
+
+Per heal attempt:
+
+1. **Re-discover** the element via Playwright MCP (`browser_navigate`, `browser_snapshot` — a11y tree, role + name).
+2. **Patch the POM** — minimal role-based locator diff in `pages/` only.
+3. **Re-run** the failing spec to prove green:
+   ```bash
+   npx playwright test <failing-spec-path> --project=chromium-didaxis
+   ```
+4. **Verify assertions unchanged** — `git diff tests/` must be empty; never weaken or delete `expect(`.
+5. **Open a repair PR** on branch `heal/<short-description>`, linked to the originating CI run and triage comment. Human merges — do not merge yourself.
+
+**Budget:** at most **5 heals per run**. Each locator repair counts as one heal.
+
+**Stop and escalate** when:
+
+- Re-run is still red after the heal (one repair per heal attempt — do not chain fixes in the same heal).
+- Green only after changing an assertion (revert; this is a hard stop).
+- Element missing from a11y tree after replay — likely app bug, not drift.
+- Heal budget (5) exhausted.
+- More than one unrelated locator broke (scope > one repair per heal).
+
+### 3. Done (heal path)
+
+- Repair PR opened and linked to the red run.
+- Re-run passed with **assertions unchanged**.
+- Await human review and merge.
+
+### 4. Real app bug (never heal)
+
+Read `.cursor/skills/jira-bug-reporter/SKILL.md`. Ask human for approval, then delegate to `bug-reporter` with the full triage handoff. Link the Jira ticket to the story and the failing run. **Do not patch POMs or specs to mask the defect.**
+
 ## Analyze (coordinator only)
 
-1. Read `.agent/skills/jira-ticket-analyzer/SKILL.md`.
+1. Read `.cursor/skills/jira-ticket-analyzer/SKILL.md`.
 2. Fetch the ticket via Atlassian MCP.
 3. Write Gherkin scenarios to `features/<ticket-key>.feature.md`.
 4. Present the plan and **wait for human review** before delegating to test-writer.
@@ -83,12 +142,14 @@ Pause and ask before:
 
 - Delegating test-writer (plan approved?)
 - Committing or merging spec changes
+- **Merging a self-heal repair PR** (orchestrator opens PR; human merges)
 - Filing a Jira bug (bug-reporter requires explicit approval)
 
 ## Done
 
 - **Success:** suite is green for the ticket's spec.
-- **Bug path:** Jira bug filed, linked to story, key returned to user.
+- **Heal path:** repair PR opened, re-run green, assertions unchanged — human merges.
+- **Bug path:** Jira bug filed, linked to story and run, key returned to user.
 
 ## Escalation
 
@@ -97,3 +158,6 @@ Stop and report to the user when:
 - Same failure on two consecutive runs of the same spec
 - Triage returns ambiguous / unclassifiable
 - Delegation budget (3) is exhausted
+- Heal budget (5) is exhausted
+- A heal cannot prove green without changing assertions
+- Re-run still red after a heal attempt
