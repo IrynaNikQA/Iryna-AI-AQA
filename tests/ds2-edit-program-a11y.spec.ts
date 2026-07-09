@@ -6,7 +6,7 @@ import { createProgramTracked, uniqueSuffix } from './didaxis.helpers';
 test.describe('DS-2 — Edit program accessibility', () => {
   test.describe.configure({ mode: 'serial', timeout: 60_000 });
 
-  test('TC-a11y-001 — Edit Program dialog has no wcag2a/aa violations', async ({
+  test('TC-a11y-001 — Edit Program dialog has no wcag2a/aa violations', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {
@@ -26,7 +26,7 @@ test.describe('DS-2 — Edit program accessibility', () => {
     expect(results.violations).toEqual([]);
   });
 
-  test('TC-a11y-002 — Edit flow is keyboard operable', async ({ page, trackProgram }) => {
+  test('TC-a11y-002 — Edit flow is keyboard operable', { tag: '@regression' }, async ({ page, trackProgram }) => {
     const name = `Keyboard Edit Target ${uniqueSuffix()}`;
     const programs = new ProgramsPage(page);
     const edit = programs.editProgramModal;

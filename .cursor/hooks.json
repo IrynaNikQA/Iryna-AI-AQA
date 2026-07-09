@@ -3,8 +3,8 @@
   "hooks": {
     "afterFileEdit": [
       {
-        "command": ".cursor/hooks/block-weakened-test.js",
-        "matcher": "tests/.*",
+        "command": ".cursor/hooks/block-constitution-violations.js",
+        "matcher": "Write",
         "failClosed": true
       }
     ]

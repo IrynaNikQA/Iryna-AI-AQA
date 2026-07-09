@@ -5,7 +5,7 @@ import { createProgramTracked, uniqueSuffix } from './didaxis.helpers';
 test.describe('DS-4 — Delete program with confirmation', () => {
   test.describe.configure({ mode: 'serial', timeout: 60_000 });
 
-  test('TC-001 — Confirming delete removes program from the list', async ({ page, trackProgram }) => {
+  test('TC-001 — Confirming delete removes program from the list', { tag: '@sanity' }, async ({ page, trackProgram }) => {
     const name = `Test Program ${uniqueSuffix()}`;
     const programs = new ProgramsPage(page);
 
@@ -19,7 +19,7 @@ test.describe('DS-4 — Delete program with confirmation', () => {
     await expect(programs.programText(name)).toHaveCount(0, { timeout: 15_000 });
   });
 
-  test('TC-002 — Cancel leaves program in the list', async ({ page, trackProgram }) => {
+  test('TC-002 — Cancel leaves program in the list', { tag: '@e2e' }, async ({ page, trackProgram }) => {
     const name = `Keep Me ${uniqueSuffix()}`;
     const programs = new ProgramsPage(page);
 
@@ -33,7 +33,7 @@ test.describe('DS-4 — Delete program with confirmation', () => {
     await expect(programs.programRow(name)).toBeVisible();
   });
 
-  test('TC-003 — Native confirm message references the program being deleted', async ({
+  test('TC-003 — Native confirm message references the program being deleted', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {
@@ -58,7 +58,7 @@ test.describe('DS-4 — Delete program with confirmation', () => {
     await expect(programs.programRow(b)).toBeVisible();
   });
 
-  test('TC-008 — Delete program with special characters in name', async ({ page, trackProgram }) => {
+  test('TC-008 — Delete program with special characters in name', { tag: '@regression' }, async ({ page, trackProgram }) => {
     const name = `Informatique & IA - Niveau 2 ${uniqueSuffix()}`;
     const programs = new ProgramsPage(page);
 
@@ -72,7 +72,7 @@ test.describe('DS-4 — Delete program with confirmation', () => {
     await expect(programs.programText(name)).toHaveCount(0, { timeout: 15_000 });
   });
 
-  test('TC-013 — Delete program with Unicode name', async ({ page, trackProgram }) => {
+  test('TC-013 — Delete program with Unicode name', { tag: '@regression' }, async ({ page, trackProgram }) => {
     const name = `日本語プログラム ${uniqueSuffix()}`;
     const programs = new ProgramsPage(page);
 

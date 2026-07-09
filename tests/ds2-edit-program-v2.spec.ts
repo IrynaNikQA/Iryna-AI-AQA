@@ -15,7 +15,7 @@ function waitForProgramUpdateResponse(page: Page) {
 test.describe('DS-2 — Edit existing program details', () => {
   test.describe.configure({ mode: 'serial', timeout: 60_000 });
 
-  test('TC-001 — Edit form shows current Name / Program Name and Description for Web Development 2026', async ({
+  test('TC-001 — Edit form shows current Name / Program Name and Description for Web Development 2026', { tag: '@smoke' }, async ({
     page,
     trackProgram,
   }) => {
@@ -33,7 +33,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(edit.saveButton).toBeVisible();
   });
 
-  test('TC-002 — After Save, the list shows Web Development 2026 - Updated and the edit UI closes', async ({
+  test('TC-002 — After Save, the list shows Web Development 2026 - Updated and the edit UI closes', { tag: '@sanity' }, async ({
     page,
     trackProgram,
   }) => {
@@ -53,7 +53,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(programs.programText(name)).toHaveCount(0);
   });
 
-  test('TC-003 — After changing only Description, Name / Program Name remains Machine Learning 2027', async ({
+  test('TC-003 — After changing only Description, Name / Program Name remains Machine Learning 2027', { tag: '@e2e' }, async ({
     page,
     trackProgram,
   }) => {
@@ -75,7 +75,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(programs.textContaining(newDesc).first()).toBeVisible();
   });
 
-  test('TC-004 — Save with no edits leaves Stable Program 88 and Stable description 88 unchanged', async ({
+  test('TC-004 — Save with no edits leaves Stable Program 88 and Stable description 88 unchanged', { tag: '@e2e' }, async ({
     page,
     trackProgram,
   }) => {
@@ -93,7 +93,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(programs.textContaining(desc).first()).toBeVisible();
   });
 
-  test('TC-005 — Single Save persists both Name Alpha Program - Revised and Description Revised scope and outcomes', async ({
+  test('TC-005 — Single Save persists both Name Alpha Program - Revised and Description Revised scope and outcomes', { tag: '@e2e' }, async ({
     page,
     trackProgram,
   }) => {
@@ -114,7 +114,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(programs.textContaining(revisedDesc).first()).toBeVisible();
   });
 
-  test('TC-006 — Clearing Name / Program Name does not persist for Named Program Alpha', async ({
+  test('TC-006 — Clearing Name / Program Name does not persist for Named Program Alpha', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {
@@ -138,7 +138,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(programs.programText(name).first()).toBeVisible();
   });
 
-  test('TC-007 — Canceling edit does not persist Should Not Persist 42 as the name for Web Development 2026', async ({
+  test('TC-007 — Canceling edit does not persist Should Not Persist 42 as the name for Web Development 2026', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {
@@ -156,7 +156,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(programs.programText(name).first()).toBeVisible();
   });
 
-  test('TC-008 — Failed update API does not show Ghost Edit Name without confirmed success', async ({
+  test('TC-008 — Failed update API does not show Ghost Edit Name without confirmed success', { tag: '@api' }, async ({
     page,
     trackProgram,
   }) => {
@@ -195,11 +195,11 @@ test.describe('DS-2 — Edit existing program details', () => {
     }
   });
 
-  test('TC-009 — Non-admin does not persist Unauthorized Edit 001 via edit UI', async () => {
+  test('TC-009 — Non-admin does not persist Unauthorized Edit 001 via edit UI', { tag: '@regression' }, async () => {
     test.skip(true, 'No non-admin role in current fixture setup.');
   });
 
-  test('TC-010 — Name / Program Name あ with Description Min name on edit follows min-length rules', async ({
+  test('TC-010 — Name / Program Name あ with Description Min name on edit follows min-length rules', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {
@@ -226,11 +226,11 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(programs.textContaining(minDesc).first()).toBeVisible();
   });
 
-  test('TC-011 — Name / Program Name of exactly N characters with Description Boundary edit N saves or is constrained', async () => {
+  test('TC-011 — Name / Program Name of exactly N characters with Description Boundary edit N saves or is constrained', { tag: '@regression' }, async () => {
     test.skip(true, 'Maximum name length N is not documented in the app or API.');
   });
 
-  test('TC-012 — Renaming Gamma Program to Web Development 2026 when that name exists follows duplicate rules', async ({
+  test('TC-012 — Renaming Gamma Program to Web Development 2026 when that name exists follows duplicate rules', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {
@@ -255,7 +255,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(programs.programRow(existing)).toHaveCount(1);
   });
 
-  test('TC-013 — Name Inżynieria & Robotyka — 日本語 and Description Symbols persist without XSS or encoding loss', async ({
+  test('TC-013 — Name Inżynieria & Robotyka — 日本語 and Description Symbols persist without XSS or encoding loss', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {
@@ -278,7 +278,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(edit.descriptionInput).toHaveValue(newDesc);
   });
 
-  test('TC-014 — Multiline Description Line1 / Line2 / Line3 for Multiline Edit Program is stored consistently', async ({
+  test('TC-014 — Multiline Description Line1 / Line2 / Line3 for Multiline Edit Program is stored consistently', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {
@@ -297,7 +297,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(edit.descriptionInput).toHaveValue(multilineDesc);
   });
 
-  test('TC-015 — Double-click Save when renaming to Double Save Edit applies only one persisted update', async ({
+  test('TC-015 — Double-click Save when renaming to Double Save Edit applies only one persisted update', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {
@@ -320,7 +320,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(programs.programText(name)).toHaveCount(0);
   });
 
-  test('TC-016 — Description <img src=x onerror=alert(1)> on Security XSS Edit Base does not execute when rendered', async ({
+  test('TC-016 — Description <img src=x onerror=alert(1)> on Security XSS Edit Base does not execute when rendered', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {

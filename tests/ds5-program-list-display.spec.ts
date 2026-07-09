@@ -5,7 +5,7 @@ import { createProgramTracked, uniqueSuffix } from './didaxis.helpers';
 test.describe('DS-5 — Program list filtering and display', () => {
   test.describe.configure({ mode: 'serial', timeout: 60_000 });
 
-  test('TC-001 — List shows program name and description for each created program', async ({
+  test('TC-001 — List shows program name and description for each created program', { tag: '@smoke' }, async ({
     page,
     trackProgram,
   }) => {
@@ -20,7 +20,7 @@ test.describe('DS-5 — Program list filtering and display', () => {
     await expect(programs.textContaining(desc).first()).toBeVisible();
   });
 
-  test('TC-003 — Single program row shows name and description', async ({ page, trackProgram }) => {
+  test('TC-003 — Single program row shows name and description', { tag: '@e2e' }, async ({ page, trackProgram }) => {
     const name = `Single Row ${uniqueSuffix()}`;
     const desc = `Smoke test description ${uniqueSuffix()}`;
     const programs = new ProgramsPage(page);
@@ -32,7 +32,7 @@ test.describe('DS-5 — Program list filtering and display', () => {
     await expect(programs.textContaining(desc).first()).toBeVisible();
   });
 
-  test('TC-009 — Special characters in name and description render in list', async ({
+  test('TC-009 — Special characters in name and description render in list', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {
@@ -47,7 +47,7 @@ test.describe('DS-5 — Program list filtering and display', () => {
     await expect(programs.textContaining('Symbols:').first()).toBeVisible();
   });
 
-  test('TC-010 — Unicode name and description display on Programs page', async ({
+  test('TC-010 — Unicode name and description display on Programs page', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {
@@ -62,7 +62,7 @@ test.describe('DS-5 — Program list filtering and display', () => {
     await expect(programs.textContaining(desc).first()).toBeVisible();
   });
 
-  test('Programs page exposes create entry point', async ({ page }) => {
+  test('Programs page exposes create entry point', { tag: '@smoke' }, async ({ page }) => {
     const programs = new ProgramsPage(page);
     await programs.goto();
     await expect(programs.newProgramButton).toBeVisible();

@@ -5,7 +5,7 @@ import { createProgramTracked, uniqueSuffix } from './didaxis.helpers';
 test.describe('DS-6 — Program semester panel selection', () => {
   test.describe.configure({ mode: 'serial', timeout: 60_000 });
 
-  test('TC-001 — Selecting a program reveals the semester panel', async ({ page, trackProgram }) => {
+  test('TC-001 — Selecting a program reveals the semester panel', { tag: '@e2e' }, async ({ page, trackProgram }) => {
     const name = `Semester Panel Program ${uniqueSuffix()}`;
     const programs = new ProgramsPage(page);
 
@@ -19,7 +19,7 @@ test.describe('DS-6 — Program semester panel selection', () => {
     await expect(programs.addSemesterButton).toBeVisible();
   });
 
-  test('TC-002 — Switching selection updates the semester panel', async ({ page, trackProgram }) => {
+  test('TC-002 — Switching selection updates the semester panel', { tag: '@regression' }, async ({ page, trackProgram }) => {
     const alpha = `Semester Alpha ${uniqueSuffix()}`;
     const beta = `Semester Beta ${uniqueSuffix()}`;
     const programs = new ProgramsPage(page);
