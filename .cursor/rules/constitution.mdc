@@ -1,0 +1,87 @@
+---
+description: Always-on project constitution — non-negotiables, defaults, and hard stops for Playwright work.
+alwaysApply: true
+---
+
+# Constitution
+
+Non-negotiables for every task. Details live in `.cursor/rules/playwright-conventions.mdc` and skills below.
+
+## MUST
+
+| Rule | Why |
+|------|-----|
+| Role-based locators (`getByRole`, `getByLabel`, `getByTestId`) | User-facing, resilient selectors |
+| Web-first assertions (`expect(locator)`) | No blind waits; auto-retry until timeout |
+| `storageState` auth via setup project | Fast, stable login; no per-test UI sign-in |
+| Unique self-cleaning data (`Date.now()`, API teardown) | Parallel-safe; no data pollution |
+| One tag per test (`@smoke`, `@sanity`, `@regression`, `@api`, `@e2e`, `@destructive`) | Filterable npm slices; `@destructive` only for shared-state mutation + revert hook |
+
+## SHOULD
+
+| Practice | Why |
+|----------|-----|
+| Faker factories for test data | Realistic, varied inputs without boilerplate |
+| Enums for repeated strings | Single source of truth for labels, routes, statuses |
+| JSDoc on POM action methods | Intent visible at call site; aids review |
+
+## WON'T
+
+| Refusal | Instead |
+|---------|---------|
+| XPath | Role/label/testid locators |
+| `waitForTimeout` | Web-first `expect()` |
+| Hardcoded secrets | `process.env` + auth setup |
+| `any` type | Proper types or `unknown` + narrow |
+| Weakened assertions | Keep assertion; fix app or locator |
+| Self-heal a real app bug | Triage → file bug; heal drift only |
+| Tags on `describe` | Tag individual `test()` calls |
+
+## Agent governance
+
+Behavioral rules — not hook-enforced. Hooks catch WON'T violations; this governs *when* and *how* to act.
+
+### Audit-then-edit
+
+1. **Audit** — read relevant files, skills, and repo state before changing anything.
+2. **Propose** — for non-trivial work, emit a Proposal block (below) and wait per confidence gate.
+3. **Edit** — only after audit (and approval when required).
+
+**Non-trivial** = multi-file change, new test/spec/POM, CI/heal/triage, config or env touch, or any invented identifier risk.
+
+Trivial = single-line fix with evidence in open files, or user pasted exact text to apply.
+
+### Proposal block (required before edit on non-trivial tasks)
+
+```markdown
+## Proposal
+
+| Field | Value |
+|-------|-------|
+| **Scope** | What will change (files, behavior) |
+| **Confidence** | 1–10 |
+| **Rationale** | Why this approach, citing what you read |
+| **Unknowns** | What you could not verify — or *None* |
+```
+
+### Confidence gate
+
+| Score | Action |
+|-------|--------|
+| **< 5** | **Stop.** Ask for missing input. Do not edit. |
+| **5–7** | List unknowns explicitly; **wait for human approval** before editing. |
+| **≥ 8** | Proceed with audit-then-edit. State unknowns if any remain. |
+
+Score against **repo evidence** (files read, CI output, ticket text) — not model certainty.
+
+### Never invent — ask or explore
+
+Do not guess paths, enum values, env var names, credentials, API routes, or user-visible messages. If not found in the repo, `.env.example`, Jira, or a live explore (`explore-and-generate`, browser MCP): **ask** or **explore** — never fabricate.
+
+## Skills (`.cursor/skills/`)
+
+`api-cleanup` · `ci-failure-triage` · `exploratory-charter` · `explore-and-generate` · `jira-bug-reporter` · `jira-ticket-analyzer` · `pom-conventions` · `program-deleter` · `self-heal` · `suite-eval`
+
+## Agents (`.cursor/agents/`)
+
+`triage` — classify red CI · `test-writer` — plan → Playwright spec · `bug-reporter` — Jira bug for confirmed defects

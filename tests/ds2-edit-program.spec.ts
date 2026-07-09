@@ -5,7 +5,7 @@ import { createProgramTracked, uniqueSuffix } from './didaxis.helpers';
 test.describe('DS-2 — Edit existing program details', () => {
   test.describe.configure({ mode: 'serial', timeout: 60_000 });
 
-  test('TC-001 — Edit form opens with current program name and description', async ({
+  test('TC-001 — Edit form opens with current program name and description', { tag: '@smoke' }, async ({
     page,
     trackProgram,
   }) => {
@@ -21,7 +21,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(edit.descriptionInput).toHaveValue(desc);
   });
 
-  test('TC-002 — Renaming program updates list after Save', async ({ page, trackProgram }) => {
+  test('TC-002 — Renaming program updates list after Save', { tag: '@sanity' }, async ({ page, trackProgram }) => {
     const name = `Web Development ${uniqueSuffix()}`;
     const desc = `Original desc ${uniqueSuffix()}`;
     const updated = `${name} - Updated`;
@@ -38,7 +38,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(programs.textContaining(desc).first()).toBeVisible();
   });
 
-  test('TC-003 — Description-only edit leaves program name unchanged', async ({
+  test('TC-003 — Description-only edit leaves program name unchanged', { tag: '@e2e' }, async ({
     page,
     trackProgram,
   }) => {
@@ -60,7 +60,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(programs.textContaining(newDesc).first()).toBeVisible();
   });
 
-  test('TC-004 — Save with no edits keeps program unchanged', async ({ page, trackProgram }) => {
+  test('TC-004 — Save with no edits keeps program unchanged', { tag: '@e2e' }, async ({ page, trackProgram }) => {
     const name = `Stable Program ${uniqueSuffix()}`;
     const desc = `Stable description ${uniqueSuffix()}`;
     const programs = new ProgramsPage(page);
@@ -74,7 +74,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(programs.programText(name).first()).toBeVisible();
   });
 
-  test('TC-006 — Empty program name blocks save', async ({ page, trackProgram }) => {
+  test('TC-006 — Empty program name blocks save', { tag: '@regression' }, async ({ page, trackProgram }) => {
     const name = `Named Program ${uniqueSuffix()}`;
     const programs = new ProgramsPage(page);
     const edit = programs.editProgramModal;
@@ -93,7 +93,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     }
   });
 
-  test('TC-007 — Cancel dismisses edit without persisting changes', async ({
+  test('TC-007 — Cancel dismisses edit without persisting changes', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {
@@ -111,7 +111,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(programs.programText(name).first()).toBeVisible();
   });
 
-  test('TC-014 — Unicode and special characters in name and description persist after edit', async ({
+  test('TC-014 — Unicode and special characters in name and description persist after edit', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {
@@ -131,7 +131,7 @@ test.describe('DS-2 — Edit existing program details', () => {
     await expect(programs.programText(newName).first()).toBeVisible();
   });
 
-  test('TC-018 — Script-like description after edit does not trigger dialog', async ({
+  test('TC-018 — Script-like description after edit does not trigger dialog', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {

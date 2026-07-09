@@ -18,14 +18,14 @@ function todoRow(page: import('@playwright/test').Page, label: string) {
 }
 
 test.describe('Positive flows (prompt template TC-001–TC-006)', () => {
-  test('TC-001: empty list shows todos heading and new-todo entry', async ({ page }) => {
+  test('TC-001: empty list shows todos heading and new-todo entry', { tag: '@smoke' }, async ({ page }) => {
     await expect(page.getByRole('heading', { name: 'todos' })).toBeVisible();
     await expect(newTodoInput(page)).toBeVisible();
     await expect(newTodoInput(page)).toHaveAttribute('placeholder', 'What needs to be done?');
     await expect(page.locator('.todo-list li')).toHaveCount(0);
   });
 
-  test('TC-002: four distinct todos appear in order with correct counter', async ({ page }) => {
+  test('TC-002: four distinct todos appear in order with correct counter', { tag: '@e2e' }, async ({ page }) => {
     const input = newTodoInput(page);
     await input.fill('Buy oat milk');
     await input.press('Enter');
@@ -44,7 +44,7 @@ test.describe('Positive flows (prompt template TC-001–TC-006)', () => {
     await expect(page.getByText('4 items left')).toBeVisible();
   });
 
-  test('TC-003: completing one item shows completed state and 3 items left', async ({ page }) => {
+  test('TC-003: completing one item shows completed state and 3 items left', { tag: '@e2e' }, async ({ page }) => {
     const input = newTodoInput(page);
     for (const t of ['Buy oat milk', 'Schedule dentist', 'Pay electricity bill', 'Book flight to Lisbon']) {
       await input.fill(t);
@@ -57,7 +57,7 @@ test.describe('Positive flows (prompt template TC-001–TC-006)', () => {
     await expect(page.getByText('3 items left')).toBeVisible();
   });
 
-  test('TC-004: destroy removes only the targeted row and updates count', async ({ page }) => {
+  test('TC-004: destroy removes only the targeted row and updates count', { tag: '@e2e' }, async ({ page }) => {
     const input = newTodoInput(page);
     for (const t of ['Buy oat milk', 'Schedule dentist', 'Pay electricity bill', 'Book flight to Lisbon']) {
       await input.fill(t);
@@ -76,7 +76,7 @@ test.describe('Positive flows (prompt template TC-001–TC-006)', () => {
     await expect(page.getByText('3 items left')).toBeVisible();
   });
 
-  test('TC-005: Mark all as complete finishes every active todo', async ({ page }) => {
+  test('TC-005: Mark all as complete finishes every active todo', { tag: '@e2e' }, async ({ page }) => {
     const input = newTodoInput(page);
     for (const t of ['Buy oat milk', 'Schedule dentist', 'Pay electricity bill', 'Book flight to Lisbon']) {
       await input.fill(t);
@@ -91,7 +91,7 @@ test.describe('Positive flows (prompt template TC-001–TC-006)', () => {
     await expect(page.getByRole('button', { name: 'Clear completed' })).toBeVisible();
   });
 
-  test('TC-006: Active filter hides completed todos', async ({ page }) => {
+  test('TC-006: Active filter hides completed todos', { tag: '@e2e' }, async ({ page }) => {
     const input = newTodoInput(page);
     for (const t of ['Buy oat milk', 'Schedule dentist', 'Pay electricity bill', 'Book flight to Lisbon']) {
       await input.fill(t);
@@ -108,14 +108,14 @@ test.describe('Positive flows (prompt template TC-001–TC-006)', () => {
 });
 
 test.describe('Negative flows (prompt template TC-007–TC-011)', () => {
-  test('TC-007: whitespace-only submit does not create a row', async ({ page }) => {
+  test('TC-007: whitespace-only submit does not create a row', { tag: '@regression' }, async ({ page }) => {
     const input = newTodoInput(page);
     await input.fill('   ');
     await input.press('Enter');
     await expect(page.locator('.todo-list li')).toHaveCount(0);
   });
 
-  test('TC-008: Enter on empty new-todo does not duplicate existing item', async ({ page }) => {
+  test('TC-008: Enter on empty new-todo does not duplicate existing item', { tag: '@regression' }, async ({ page }) => {
     const input = newTodoInput(page);
     await input.fill('Buy oat milk');
     await input.press('Enter');
@@ -123,7 +123,7 @@ test.describe('Negative flows (prompt template TC-007–TC-011)', () => {
     await expect(page.locator('.todo-list li')).toHaveCount(1);
   });
 
-  test('TC-009: destroy removes only the clicked row among four', async ({ page }) => {
+  test('TC-009: destroy removes only the clicked row among four', { tag: '@regression' }, async ({ page }) => {
     const input = newTodoInput(page);
     for (const t of ['Buy oat milk', 'Schedule dentist', 'Pay electricity bill', 'Book flight to Lisbon']) {
       await input.fill(t);
@@ -140,7 +140,7 @@ test.describe('Negative flows (prompt template TC-007–TC-011)', () => {
     await expect(todoRow(page, 'Book flight to Lisbon')).toBeVisible();
   });
 
-  test('TC-010: completing a todo keeps it visible on All', async ({ page }) => {
+  test('TC-010: completing a todo keeps it visible on All', { tag: '@regression' }, async ({ page }) => {
     const input = newTodoInput(page);
     await input.fill('Buy oat milk');
     await input.press('Enter');
@@ -151,7 +151,7 @@ test.describe('Negative flows (prompt template TC-007–TC-011)', () => {
     await expect(row).toBeVisible();
   });
 
-  test('TC-011: deleted todo does not return after hard reload', async ({ page }) => {
+  test('TC-011: deleted todo does not return after hard reload', { tag: '@regression' }, async ({ page }) => {
     const input = newTodoInput(page);
     await input.fill('Temp task A');
     await input.press('Enter');
@@ -166,7 +166,7 @@ test.describe('Negative flows (prompt template TC-007–TC-011)', () => {
 });
 
 test.describe('Edge cases (prompt template TC-012–TC-017)', () => {
-  test('TC-012: very long single-line todo is accepted', async ({ page }) => {
+  test('TC-012: very long single-line todo is accepted', { tag: '@regression' }, async ({ page }) => {
     const long = 'EdgeCase-'.repeat(Math.ceil(500 / 'EdgeCase-'.length)).slice(0, 500);
     const input = newTodoInput(page);
     await input.fill(long);
@@ -177,7 +177,7 @@ test.describe('Edge cases (prompt template TC-012–TC-017)', () => {
     await expect(row.locator('.destroy')).toBeVisible();
   });
 
-  test('TC-013: duplicate titles create separate rows', async ({ page }) => {
+  test('TC-013: duplicate titles create separate rows', { tag: '@regression' }, async ({ page }) => {
     const input = newTodoInput(page);
     await input.fill('Same title');
     await input.press('Enter');
@@ -187,7 +187,7 @@ test.describe('Edge cases (prompt template TC-012–TC-017)', () => {
     await expect(page.getByText('2 items left')).toBeVisible();
   });
 
-  test('TC-014: HTML-like text is shown as plain text', async ({ page }) => {
+  test('TC-014: HTML-like text is shown as plain text', { tag: '@regression' }, async ({ page }) => {
     const raw = `<script>alert(1)</script> & "quotes" 'apostrophe' € 中文`;
     let dialogOpened = false;
     page.once('dialog', () => {
@@ -200,7 +200,7 @@ test.describe('Edge cases (prompt template TC-012–TC-017)', () => {
     expect(dialogOpened, 'script in todo must not execute').toBe(false);
   });
 
-  test('TC-015: leading and trailing spaces are trimmed on create', async ({ page }) => {
+  test('TC-015: leading and trailing spaces are trimmed on create', { tag: '@regression' }, async ({ page }) => {
     const input = newTodoInput(page);
     await input.fill('  Trim me  ');
     await input.press('Enter');
@@ -208,7 +208,7 @@ test.describe('Edge cases (prompt template TC-012–TC-017)', () => {
     await expect(page.locator('.todo-list li')).toHaveCount(1);
   });
 
-  test('TC-016: very large input does not crash the page', async ({ page }) => {
+  test('TC-016: very large input does not crash the page', { tag: '@regression' }, async ({ page }) => {
     const input = newTodoInput(page);
     const huge = 'x'.repeat(10_000);
     await input.fill(huge);
@@ -217,7 +217,7 @@ test.describe('Edge cases (prompt template TC-012–TC-017)', () => {
     await expect(page.getByRole('heading', { name: 'todos' })).toBeVisible();
   });
 
-  test('TC-017: rapid short adds produce four ordered rows', async ({ page }) => {
+  test('TC-017: rapid short adds produce four ordered rows', { tag: '@regression' }, async ({ page }) => {
     const input = newTodoInput(page);
     for (const c of ['A', 'B', 'C', 'D']) {
       await input.fill(c);

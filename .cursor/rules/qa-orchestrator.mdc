@@ -42,6 +42,7 @@ alwaysApply: false
 |-------|------|------|
 | jira-ticket-analyzer | `.cursor/skills/jira-ticket-analyzer/SKILL.md` | Ticket → test plan (coordinator owns "analyze") |
 | ci-failure-triage | `.cursor/skills/ci-failure-triage/SKILL.md` | Red run → classify app bug vs test issue |
+| **suite-eval** | `.cursor/skills/suite-eval/SKILL.md` | **Mandatory close** — refresh `eval-report.md` |
 | **self-heal** | `.cursor/skills/self-heal/SKILL.md` | Triage says **drift** → patch POM, prove green, open repair PR |
 | jira-bug-reporter | `.cursor/skills/jira-bug-reporter/SKILL.md` | Triage says **real app bug** → file and link Jira |
 
@@ -150,6 +151,14 @@ Pause and ask before:
 - **Success:** suite is green for the ticket's spec.
 - **Heal path:** repair PR opened, re-run green, assertions unchanged — human merges.
 - **Bug path:** Jira bug filed, linked to story and run, key returned to user.
+
+### Eval (mandatory — do not close the task without this)
+
+1. Read and execute `.cursor/skills/suite-eval/SKILL.md`.
+2. Update `eval-report.md` with fresh numbers (or explicit `N/A` + reason).
+3. Reply to the user with the **top reliability risk** and **next action** from the report.
+
+Orchestrated work is **not done** until `eval-report.md` is updated for this outcome.
 
 ## Escalation
 
